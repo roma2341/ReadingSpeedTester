@@ -12,12 +12,24 @@ namespace ReadingSpeedTester
         private String text;
         private List<TextFragment> fragments;
         private TextFragment currentTextFragment;
+        /// <summary>
+        /// Demanded to store "red" text block, which is skeeped by user (he don't read it)
+        /// </summary>
+       private TextFragment extraTextFragment;
         private int lastIndex = -1;
 
         private TextFragmentContainer()
         {
             fragments = new List<TextFragment>();
         }
+        /// <summary>
+        /// Return skeeped text fragment or null if new text fragment is started
+        /// </summary>
+        /// <returns></returns>
+       public TextFragment getExtraTextFragment()
+       {
+           return extraTextFragment;
+       }
 
         public TextFragment startOrFinishFragment(int index)
         {
@@ -53,7 +65,9 @@ namespace ReadingSpeedTester
         }
         public TextFragment startNewFragment(int startIndex,bool createTextFragmentIfNotSelectedTextBefore = true)
         {
-            if (createTextFragmentIfNotSelectedTextBefore) fillNotSelectedTextByFragment(startIndex);
+            TextFragment tempExtraFragment = null;
+            if (createTextFragmentIfNotSelectedTextBefore) tempExtraFragment = fillNotSelectedTextByFragment(startIndex);
+            extraTextFragment = tempExtraFragment;
             if (startIndex <= lastIndex)
             {
                 Console.WriteLine("Error, start index must be greater than last selection index");

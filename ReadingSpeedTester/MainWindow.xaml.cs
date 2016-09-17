@@ -40,8 +40,19 @@ namespace ReadingSpeedTester
             Console.WriteLine("Mouse(LB) preview down. Carret position:"+ carretPosition);
              if (carretPosition==null || textFragmentcontainer == null) return;
             textFragmentAfterAction = textFragmentcontainer.startOrFinishFragment((int)carretPosition);
-             if (textFragmentAfterAction!=null && textFragmentAfterAction.isFinished()) updateRtbTextFromTextFragment(textFragmentAfterAction);
-            if (carretPosition >= loadedTextLength)
+             bool colorizeTextFragmentCondition = textFragmentAfterAction != null &&
+                                                  textFragmentAfterAction.isFinished();
+             TextFragment extraFragment = textFragmentcontainer.getExtraTextFragment();
+             if (colorizeTextFragmentCondition)
+             {
+                 updateRtbTextFromTextFragment(textFragmentAfterAction);
+             }
+             else //if not make green then make red
+             {
+                if (extraFragment != null)
+                    updateRtbTextFromTextFragment(extraFragment);
+            }
+             if (carretPosition >= loadedTextLength)
             {
                 finishSession();
             }

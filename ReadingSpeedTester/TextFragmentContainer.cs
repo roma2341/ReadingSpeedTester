@@ -68,6 +68,7 @@ namespace ReadingSpeedTester
             TextFragment tempExtraFragment = null;
             if (createTextFragmentIfNotSelectedTextBefore) tempExtraFragment = fillNotSelectedTextByFragment(startIndex);
             extraTextFragment = tempExtraFragment;
+            saveExtraTextFragment();
             if (startIndex <= lastIndex)
             {
                 Console.WriteLine("Error, start index must be greater than last selection index");
@@ -110,6 +111,12 @@ namespace ReadingSpeedTester
         {
             this.lastIndex = index;
         }
+
+       private void saveExtraTextFragment()
+       {
+            if (extraTextFragment!=null)
+           fragments.Add(extraTextFragment);
+       }
         private void saveCurrentTextFragment()
         {
             fragments.Add(currentTextFragment);

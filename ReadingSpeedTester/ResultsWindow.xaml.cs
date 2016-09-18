@@ -34,15 +34,19 @@ namespace ReadingSpeedTester
         {
             List<TextFragment> fragments = textFragmentcontainer.getFragments();
             long totalTime = 0;
+            int totalLength = 0;
             statisticDataSource.SuspendUpdate();
             statisticDataSource.Collection.Clear();
             foreach (TextFragment fragment in fragments)
             {
+              
                 int length = fragment.getLength();
                 long time = fragment.getTimeDeltaMS();
                 totalTime += time;
-                if (fragment.getPerceivity())
-                statisticDataSource.Collection.Add(new Point(totalTime / 1000, length));
+                totalLength += length;
+               // if (fragment.getPerceivity())
+                statisticDataSource.Collection.Add(new Point(totalTime / 1000, totalLength));
+
 
             }
             statisticDataSource.ResumeUpdate();

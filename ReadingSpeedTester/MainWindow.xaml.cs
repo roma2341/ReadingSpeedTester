@@ -111,6 +111,7 @@ namespace ReadingSpeedTester
 
         private void finishSession()
         {
+            Console.WriteLine("Perceived text:" + textFragmentcontainer.getPerceivedText());
             resultsWindow = new ResultsWindow(textFragmentcontainer);
             resultsWindow.ShowDialog();
         }
@@ -118,6 +119,11 @@ namespace ReadingSpeedTester
         private void btnFinish_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             finishSession();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }

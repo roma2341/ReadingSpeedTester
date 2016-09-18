@@ -16,7 +16,15 @@ namespace ReadingSpeedTester
         private bool isPerceived = false;//Чи прочитаний(сприйнятий)
         private bool finished = false;
 
+        public DateTime getStartTime()
+        {
+            return startTime;
+        }
 
+        public DateTime getEndTime()
+        {
+            return endTime;
+        }
         public bool isFinished()
         {
             return finished;
@@ -41,11 +49,11 @@ namespace ReadingSpeedTester
             return isPerceived;
         }
 
-        public static TextFragment beginFragment(int start)
+        public static TextFragment beginFragment(int start,DateTime? time = null)
         {
             TextFragment textFragment = new TextFragment();
             textFragment.startIndex = start;
-            textFragment.startTime = DateTime.Now;
+            textFragment.startTime = null==time ? DateTime.Now : (DateTime)time;
             return textFragment;
         }
 

@@ -18,6 +18,92 @@ namespace ReadingSpeedTester
        private TextFragment extraTextFragment;
         private int lastIndex = -1;
 
+       private string textFragmentToString(TextFragment fragment)
+       {
+          int start = fragment.getStartIndex();
+           int length = fragment.getLength();
+           string result = text.Substring(start, length);
+           return result;
+       }
+
+       public string getPerceivedText()
+       {
+           StringBuilder strBuilder = new StringBuilder();
+           foreach (TextFragment fragment in fragments)
+           {
+               if (fragment.getPerceivity()) //if text fragment is readed
+                   strBuilder.Append(textFragmentToString(fragment));
+           }
+           return strBuilder.ToString();
+       }
+
+       public string getNonPerceivedText()
+       {
+            StringBuilder strBuilder = new StringBuilder();
+            foreach (TextFragment fragment in fragments)
+            {
+                if (!fragment.getPerceivity()) //if text fragment is readed
+                    strBuilder.Append(textFragmentToString(fragment));
+            }
+            return strBuilder.ToString();
+        }
+
+       public TextFragmentContainerStatistic getStatistic()
+       {
+           TextFragmentContainerStatistic statistic;
+            long readingTimeMs = 0;
+           long idleTime = 0;
+           int readedCharacters = 0,readedWords = 0;
+           int ignoredCharacters = 0,ignoredWords = 0;
+            foreach (TextFragment fragment in fragments)
+            {
+                if (fragment.getPerceivity())
+                {
+                    readingTimeMs += fragment.getTimeDeltaMS();
+                    readedCharacters += fragment.getLength();
+                    readedWords += TimeUtils.WordCounting.CountWords1(textFragmentToString(fragment));
+                }
+                else
+                {
+                    idleTime += fragment.getTimeDeltaMS();
+                    ignoredCharacters += fragment.getLength();
+                    ignoredWords += TimeUtils.WordCounting.CountWords1(textFragmentToString(fragment));
+                }
+            }
+           long totalTimeMs = readingTimeMs + idleTime;
+           int totalTimeSeconds = (int)(totalTimeMs / 1000);
+           int readingTimeSeconds = (int)(readingTimeMs / 1000);
+            statistic.ReadedCharacters = readedCharacters;
+           statistic.IgnoredCharacters = ignoredCharacters;
+           statistic.ReadedWords = readedWords;
+           statistic.IgnoredWords = ignoredWords;
+           statistic.ReadingTime = readingTimeMs;
+           statistic.IdleTime = idleTime;
+           if (totalTimeSeconds != 0)
+           {
+               statistic.AverageReadingSpeedCharactersPerMinute = (int) (readedCharacters/totalTimeSeconds)*60;
+               statistic.AverageReadingSpeedWordsPerMinute = (int) (readedWords/totalTimeSeconds)*60;
+           }
+           else
+           {
+               statistic.AverageReadingSpeedCharactersPerMinute = 0;
+                statistic.AverageReadingSpeedWordsPerMinute = 0;
+           }
+           if (readingTimeSeconds != 0)
+           {
+               statistic.AverageActiveReadingSpeedCharactersPerMinute = (int) (readedCharacters/readingTimeSeconds)*60;
+                statistic.AverageActiveReadingSpeedWordsPerMinute = (int)(readedWords / readingTimeSeconds) * 60;
+            }
+           else
+           {
+               statistic.AverageActiveReadingSpeedCharactersPerMinute = 0;
+               statistic.AverageActiveReadingSpeedWordsPerMinute = 0;
+           }
+          
+            return statistic;
+       }
+
+
         private TextFragmentContainer()
         {
             fragments = new List<TextFragment>();
@@ -56,14 +142,27 @@ namespace ReadingSpeedTester
                 return null;
             }
             if (startIndex >= endIndex) return null;
-            startNewFragment(startIndex,false);
+            DateTime time = DateTime.Now;
+            if (fragments.Count>0) time = fragments.Last().getEndTime();
+            startNewFragmentAtTime(startIndex, time, false);
             TextFragment finishedFragment = currentTextFragment;
             finishCurrentFragment(endIndex,false);
             return finishedFragment;
 
 
         }
-        public TextFragment startNewFragment(int startIndex,bool createTextFragmentIfNotSelectedTextBefore = true)
+
+       public TextFragment startNewFragment(int startIndex, bool createTextFragmentIfNotSeelctedTextBefore = true)
+       {
+           return startNewFragmentAtTime(startIndex, null, createTextFragmentIfNotSeelctedTextBefore);     
+       }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startIndex"></param>
+        /// <param name="createTextFragmentIfNotSelectedTextBefore">If true - create new fragment between old fragment and new</param>
+        /// <returns></returns>
+        public TextFragment startNewFragmentAtTime(int startIndex,DateTime? time,bool createTextFragmentIfNotSelectedTextBefore = true)
         {
             TextFragment tempExtraFragment = null;
             if (createTextFragmentIfNotSelectedTextBefore) tempExtraFragment = fillNotSelectedTextByFragment(startIndex);
@@ -79,7 +178,7 @@ namespace ReadingSpeedTester
             {
              throw new IndexOutOfRangeException(string.Format("index {0} out of range [0;{1})",startIndex, textlength));
             }
-            currentTextFragment = TextFragment.beginFragment(startIndex);
+            currentTextFragment = TextFragment.beginFragment(startIndex,time);
             updateLastIndex(startIndex);
             Console.WriteLine("New text fragment successfully started at index:"+startIndex);
             return currentTextFragment;
@@ -137,5 +236,6 @@ namespace ReadingSpeedTester
         {
             return fragments;
         }
+
     }
 }

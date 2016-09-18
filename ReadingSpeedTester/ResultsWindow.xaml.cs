@@ -29,6 +29,18 @@ namespace ReadingSpeedTester
             InitializeComponent();
            this.textFragmentcontainer = textFragmentcontainer;
             initStatisticWindow();
+            TextFragmentContainerStatistic statistic = textFragmentcontainer.getStatistic();
+            
+          charactersPerMinuteActiveReadingSpeedLabel.Content =  statistic.AverageActiveReadingSpeedCharactersPerMinute;
+          charactersPerMinuteReadingSpeedLabel.Content =  statistic.AverageReadingSpeedCharactersPerMinute;
+           charactersIgnoredLabel.Content = statistic.IgnoredCharacters;
+           charactersReadedLabel.Content = statistic.ReadedCharacters;
+            wordsReadedLabel.Content = statistic.ReadedWords;
+            wordsIgnoredLabel.Content = statistic.IgnoredWords;
+           readingTimeLabel.Content = TimeUtils.formatTimeToHumanReadableForm(statistic.ReadingTime);
+           idleTimeLabel.Content = TimeUtils.formatTimeToHumanReadableForm(statistic.IdleTime);
+            wordsPerMinuteActiveReadingSpeedLabel.Content = statistic.AverageActiveReadingSpeedWordsPerMinute;
+            wordsPerMinuteReadingSpeedLabel.Content = statistic.AverageReadingSpeedWordsPerMinute;
         }
         private void btnAnalyzeCharactersPerSecond_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -65,5 +77,7 @@ namespace ReadingSpeedTester
             //_noiseSource.Collection.Clear();
             //_noiseSource.ResumeUpdate();
         }
+
+     
     }
 }

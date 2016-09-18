@@ -5,12 +5,65 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ReadingSpeedTester"
         mc:Ignorable="d"
-        Title="ResultsWindow" Height="300" Width="300">
-    <Grid>
-        <WrapPanel Orientation="Vertical">
+        Title="ResultsWindow" Height="437.133" Width="400.667">
+    <WrapPanel Orientation="Vertical">
+            <Label x:Name="chartLabel" Content="Графіки:" HorizontalAlignment="Right"/>
             <DockPanel>
-                <Button x:Name="btnAnalyzeCharactersPerSecond" Content="Символів за час" PreviewMouseDown="btnAnalyzeCharactersPerSecond_PreviewMouseDown" Width="112"/>
+                <Button x:Name="btnAnalyzeCharactersPerSecond" Content="Символів за час" PreviewMouseDown="btnAnalyzeCharactersPerSecond_PreviewMouseDown" Width="112" RenderTransformOrigin="0.435,3.417"/>
             </DockPanel>
+            <Label x:Name="StatisticLabel" Content="Статистика:" HorizontalAlignment="Center"/>
+            <DockPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                    <Label x:Name="charactersReadedLabelPrefix" Content="Прочитано символів:"/>
+                    <Label Grid.Column="1" x:Name="charactersReadedLabel" Content="0"/>
+
+                    <Label Grid.Row="1" x:Name="charactersIgnoredLabelPrefix" Content="Проігноровано символів:"/>
+                    <Label Grid.Row="1" Grid.Column="1" x:Name="charactersIgnoredLabel" Content="0"/>
+
+                <Label  Grid.Row="2" x:Name="wordsReadedLabelPrefix" Content="Прочитано слів:"/>
+                <Label  Grid.Row="2" Grid.Column="1" x:Name="wordsReadedLabel" Content="0"/>
+
+                <Label Grid.Row="3" x:Name="wordsIgnoredLabelPrefix" Content="Проігноровано слів:"/>
+                <Label Grid.Row="3" Grid.Column="1" x:Name="wordsIgnoredLabel" Content="0"/>
+
+                <Label Grid.Row="4" x:Name="readingTimePrefixLabel" Content="Час читання:"/>
+                <Label Grid.Row="4"  Grid.Column="1" x:Name="readingTimeLabel" Content="0"/>
+
+
+                    <Label Grid.Row="5" x:Name="idleTimePrefixLabel" Content="Час простою:"/>
+                    <Label Grid.Row="5"  Grid.Column="1" x:Name="idleTimeLabel" Content="0"/>
+
+
+                    <Label Grid.Row="6" x:Name="charactersPerMinuteReadingSpeedPrefixLabel" Content="Середня швидкість читання (сим./хв):"/>
+                <Label Grid.Row="6" Grid.Column="1" x:Name="charactersPerMinuteReadingSpeedLabel" Content="0"/>
+
+                <Label Grid.Row="7" x:Name="charactersPerMinuteActiveReadingSpeedPrefixLabel" Content="Середня швидкість активного читання (сим./хв):"/>
+                <Label Grid.Row="7"  Grid.Column="1" x:Name="charactersPerMinuteActiveReadingSpeedLabel" Content="0"/>
+
+                <Label Grid.Row="8" x:Name="wordsPerMinuteReadingSpeedPrefixLabel" Content="Середня швидкість читання (слів./хв):"/>
+                <Label Grid.Row="8" Grid.Column="1" x:Name="wordsPerMinuteReadingSpeedLabel" Content="0"/>
+
+                <Label Grid.Row="9" x:Name="wordsPerMinuteActiveReadingSpeedPrefixLabel" Content="Середня швидкість активного читання (слів./хв):"/>
+                <Label Grid.Row="9"  Grid.Column="1" x:Name="wordsPerMinuteActiveReadingSpeedLabel" Content="0"/>
+
+            </Grid>
+            </DockPanel>
+
         </WrapPanel>
-    </Grid>
 </Window>

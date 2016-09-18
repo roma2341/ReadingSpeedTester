@@ -68,6 +68,7 @@
     </Compile>
     <Compile Include="TextFragment.cs" />
     <Compile Include="TextFragmentContainer.cs" />
+    <Compile Include="TextFragmentContainerStatistic.cs" />
     <Compile Include="TextUtils.cs" />
     <Compile Include="TimeUtils.cs" />
     <Compile Include="ViewportAxesRangeRestriction.cs" />

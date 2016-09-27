@@ -78,6 +78,29 @@ namespace ReadingSpeedTester
             //_noiseSource.ResumeUpdate();
         }
 
-     
+        private void btnAnalyzeCharactersPerSecondActive_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            List<TextFragment> fragments = textFragmentcontainer.getFragments();
+            long totalTime = 0;
+            int totalLength = 0;
+            statisticDataSource.SuspendUpdate();
+            statisticDataSource.Collection.Clear();
+            foreach (TextFragment fragment in fragments)
+            {
+                int length = 0;
+                if (fragment.getPerceivity())
+                length = fragment.getLength();
+                long time = fragment.getTimeDeltaMS();
+                totalTime += time;
+                totalLength += length;
+                // if (fragment.getPerceivity())
+                statisticDataSource.Collection.Add(new Point(totalTime / 1000, totalLength));
+
+
+            }
+            statisticDataSource.ResumeUpdate();
+            statisticWindow.ChartPlotterStatistic.FitToView();
+            statisticWindow.Show();
+        }
     }
 }

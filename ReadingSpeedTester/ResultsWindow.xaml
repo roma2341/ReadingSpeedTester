@@ -8,10 +8,13 @@
         Title="ResultsWindow" Height="437.133" Width="400.667">
     <WrapPanel Orientation="Vertical">
             <Label x:Name="chartLabel" Content="Графіки:" HorizontalAlignment="Right"/>
-            <DockPanel>
-                <Button x:Name="btnAnalyzeCharactersPerSecond" Content="Символів за час" PreviewMouseDown="btnAnalyzeCharactersPerSecond_PreviewMouseDown" Width="112" RenderTransformOrigin="0.435,3.417"/>
-            <Button x:Name="btnAnalyzeCharactersPerSecondActive" Content="стат. акт. читання(символів)" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondActive_PreviewMouseDown"/>
-        </DockPanel>
+            <WrapPanel Height="86">
+                <Button x:Name="btnAnalyzeCharactersPerSecond" Content="читання" PreviewMouseDown="btnAnalyzeCharactersPerSecond_PreviewMouseDown" Width="112" RenderTransformOrigin="0.435,3.417"/>
+                <Button x:Name="btnAnalyzeCharactersPerSecondWithoutAccumulating" Content="Чит. без накопич" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondWithoutAccumulating_PreviewMouseDown"/>
+            <Button x:Name="btnAnalyzeCharactersPerSecondRegardingZero" Content="Чит. відносно нуля" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondRegardingZero_PreviewMouseDown"/>
+            <Button x:Name="btnAnalyzeCharactersPerSecondActive" Content="акт. читання" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondActive_PreviewMouseDown"/>
+            
+        </WrapPanel>
             <Label x:Name="StatisticLabel" Content="Статистика:" HorizontalAlignment="Center"/>
             <DockPanel>
                 <Grid>
@@ -66,5 +69,5 @@
             </Grid>
             </DockPanel>
 
-        </WrapPanel>
+    </WrapPanel>
 </Window>

@@ -79,5 +79,12 @@ namespace ReadingSpeedTester
             return (long)(endTime.Subtract(startTime).TotalMilliseconds);
         }
 
+        public long getTimeDifference(DateTime time)
+        {
+            return (long) time.Subtract(startTime).TotalMilliseconds;
+
+
+        }
+
     }
 }

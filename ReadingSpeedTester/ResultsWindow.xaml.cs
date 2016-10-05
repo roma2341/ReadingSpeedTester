@@ -87,14 +87,58 @@ namespace ReadingSpeedTester
             statisticDataSource.Collection.Clear();
             foreach (TextFragment fragment in fragments)
             {
-                int length = 0;
-                if (fragment.getPerceivity())
-                length = fragment.getLength();
+
+                int length = fragment.getLength();
                 long time = fragment.getTimeDeltaMS();
                 totalTime += time;
-                totalLength += length;
-                // if (fragment.getPerceivity())
+                totalLength = length;
+                 if (fragment.getPerceivity())
                 statisticDataSource.Collection.Add(new Point(totalTime / 1000, totalLength));
+
+
+            }
+            statisticDataSource.ResumeUpdate();
+            statisticWindow.ChartPlotterStatistic.FitToView();
+            statisticWindow.Show();
+        }
+
+        private void btnAnalyzeCharactersPerSecondWithoutAccumulating_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            List<TextFragment> fragments = textFragmentcontainer.getFragments();
+            long totalTime = 0;
+            statisticDataSource.SuspendUpdate();
+            statisticDataSource.Collection.Clear();
+            foreach (TextFragment fragment in fragments)
+            {
+
+                int length = fragment.getLength();
+                long time = fragment.getTimeDeltaMS();
+                totalTime += time;
+                // if (fragment.getPerceivity())
+                statisticDataSource.Collection.Add(new Point(totalTime / 1000, length));
+
+
+            }
+            statisticDataSource.ResumeUpdate();
+            statisticWindow.ChartPlotterStatistic.FitToView();
+            statisticWindow.Show();
+        }
+
+        private void btnAnalyzeCharactersPerSecondRegardingZero_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            List<TextFragment> fragments = textFragmentcontainer.getFragments();
+            long totalTime = 0;
+            statisticDataSource.SuspendUpdate();
+            statisticDataSource.Collection.Clear();
+            foreach (TextFragment fragment in fragments)
+            {
+
+                int length = fragment.getLength();
+                long time = fragment.getTimeDeltaMS();
+                totalTime += time;
+                if (!fragment.getPerceivity()) length = -length;
+                // if (fragment.getPerceivity())
+                statisticDataSource.Collection.Add(new Point(totalTime / 1000, length));
 
 
             }

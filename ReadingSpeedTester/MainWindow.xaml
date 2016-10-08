@@ -12,7 +12,7 @@
                 <Button x:Name="btnLoad" Content="Load" PreviewMouseDown="btnLoad_PreviewMouseDown"/>
                 <Button x:Name="btnFinish" Content="Finish" PreviewMouseDown="btnFinish_PreviewMouseDown"/>
             </DockPanel>
-            <RichTextBox VerticalScrollBarVisibility="Visible" x:Name="rtbText" IsReadOnly="True" IsReadOnlyCaretVisible="True" SelectionOpacity="0">
+            <RichTextBox VerticalScrollBarVisibility="Visible" x:Name="rtbText" IsReadOnly="True" IsReadOnlyCaretVisible="True" SelectionOpacity="0" PreviewKeyDown="rtbText_PreviewKeyDown">
                     <FlowDocument>
                         <Paragraph>
                             <Run Text=""/>

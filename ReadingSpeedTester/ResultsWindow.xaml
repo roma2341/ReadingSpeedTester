@@ -11,9 +11,10 @@
             <WrapPanel Height="86">
                 <Button x:Name="btnAnalyzeCharactersPerSecond" Content="читання" PreviewMouseDown="btnAnalyzeCharactersPerSecond_PreviewMouseDown" Width="112" RenderTransformOrigin="0.435,3.417"/>
                 <Button x:Name="btnAnalyzeCharactersPerSecondWithoutAccumulating" Content="Чит. без накопич" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondWithoutAccumulating_PreviewMouseDown"/>
-            <Button x:Name="btnAnalyzeCharactersPerSecondRegardingZero" Content="Чит. відносно нуля" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondRegardingZero_PreviewMouseDown"/>
+            <Button x:Name="btnAnalyzeCharactersPerSecondRegardingZero" Content="Чит. відносно нуля" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondRegardingZero_PreviewMouseDown" Click="btnAnalyzeCharactersPerSecondRegardingZero_Click"/>
             <Button x:Name="btnAnalyzeCharactersPerSecondActive" Content="акт. читання" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondActive_PreviewMouseDown"/>
-            
+            <Button x:Name="btnShowReadingStatistic" Content="Статистика читання" Width="75" PreviewMouseDown="btnShowReadingStatistic_PreviewMouseDown"/>
+
         </WrapPanel>
             <Label x:Name="StatisticLabel" Content="Статистика:" HorizontalAlignment="Center"/>
             <DockPanel>

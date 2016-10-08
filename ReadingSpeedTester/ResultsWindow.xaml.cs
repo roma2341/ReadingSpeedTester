@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Research.DynamicDataDisplay;
+using System.Collections;
 
 namespace ReadingSpeedTester
 {
@@ -22,13 +23,15 @@ namespace ReadingSpeedTester
     public partial class ResultsWindow : Window
     {
         private TextFragmentContainer textFragmentcontainer;
-        private Statistic statisticWindow;
+        private ChartStatistic chartStatisticWindow;
+        private ReadingStatisticWindow readingStatisticWindow;
         public ObservableDataSource<Point> statisticDataSource = null;
         public ResultsWindow(TextFragmentContainer textFragmentcontainer)
         {
             InitializeComponent();
            this.textFragmentcontainer = textFragmentcontainer;
-            initStatisticWindow();
+            initChartStatisticWindow();
+            initReadingStatisticWindow();
             TextFragmentContainerStatistic statistic = textFragmentcontainer.getStatistic();
             
           charactersPerMinuteActiveReadingSpeedLabel.Content =  statistic.AverageActiveReadingSpeedCharactersPerMinute;
@@ -41,6 +44,12 @@ namespace ReadingSpeedTester
            idleTimeLabel.Content = TimeUtils.formatTimeToHumanReadableForm(statistic.IdleTime);
             wordsPerMinuteActiveReadingSpeedLabel.Content = statistic.AverageActiveReadingSpeedWordsPerMinute;
             wordsPerMinuteReadingSpeedLabel.Content = statistic.AverageReadingSpeedWordsPerMinute;
+
+        }
+
+        private void showReadingStatisticWindow()
+        {
+            readingStatisticWindow.Show();
         }
         private void btnAnalyzeCharactersPerSecond_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -62,20 +71,25 @@ namespace ReadingSpeedTester
 
             }
             statisticDataSource.ResumeUpdate();
-            statisticWindow.ChartPlotterStatistic.FitToView();
-            statisticWindow.Show();
-            // statisticWindow.limitAxis(0, 0, 100, 100);
+            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            chartStatisticWindow.Show();
+            // chartStatisticWindow.limitAxis(0, 0, 100, 100);
         }
-        private void initStatisticWindow()
+        private void initChartStatisticWindow()
         {
-            statisticWindow = new Statistic();
+            chartStatisticWindow = new ChartStatistic();
             statisticDataSource = new ObservableDataSource<Point>();
             statisticDataSource.SetXYMapping(p => p);
-            statisticWindow.LinegraphStatistic.Plotter.Children.Add(new LineGraph(statisticDataSource));
-            //statisticWindow.Show();
+            chartStatisticWindow.LinegraphStatistic.Plotter.Children.Add(new LineGraph(statisticDataSource));
+            //chartStatisticWindow.Show();
             // _noiseSource.SuspendUpdate();
             //_noiseSource.Collection.Clear();
             //_noiseSource.ResumeUpdate();
+        }
+
+        private void initReadingStatisticWindow()
+        {
+            readingStatisticWindow = new ReadingStatisticWindow();
         }
 
         private void btnAnalyzeCharactersPerSecondActive_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -98,8 +112,8 @@ namespace ReadingSpeedTester
 
             }
             statisticDataSource.ResumeUpdate();
-            statisticWindow.ChartPlotterStatistic.FitToView();
-            statisticWindow.Show();
+            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            chartStatisticWindow.Show();
         }
 
         private void btnAnalyzeCharactersPerSecondWithoutAccumulating_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -120,8 +134,8 @@ namespace ReadingSpeedTester
 
             }
             statisticDataSource.ResumeUpdate();
-            statisticWindow.ChartPlotterStatistic.FitToView();
-            statisticWindow.Show();
+            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            chartStatisticWindow.Show();
         }
 
         private void btnAnalyzeCharactersPerSecondRegardingZero_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -143,8 +157,49 @@ namespace ReadingSpeedTester
 
             }
             statisticDataSource.ResumeUpdate();
-            statisticWindow.ChartPlotterStatistic.FitToView();
-            statisticWindow.Show();
+            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            chartStatisticWindow.Show();
+        }
+
+        private void btnShowReadingStatistic_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+           showReadingStatisticWindow();
+            displayReadingStatistic();
+
+        }
+
+        private void addColumnToDataGrid(DataGrid dataGrid,String textOfLabel,String binding)
+        {
+        DataGridTextColumn textColumn = new DataGridTextColumn();
+        textColumn.Header = textOfLabel; 
+        textColumn.Binding = new Binding(binding);
+        dataGrid.Columns.Add(textColumn);
+        }
+        private void initReadingStatisticDataGridForTuple(String header1,String header2)
+        {
+            List<TextFragment> fragments = textFragmentcontainer.getFragments();
+            //init labels
+            readingStatisticWindow.dataGrid.Columns.Clear();
+            addColumnToDataGrid(readingStatisticWindow.dataGrid,header1,"Item1");
+            addColumnToDataGrid(readingStatisticWindow.dataGrid, header2,"Item2");
+
+
+        }
+    private void displayReadingStatistic()
+    {
+            initReadingStatisticDataGridForTuple("Тип","Значення");
+        var statistic = textFragmentcontainer.getStatisticPerFragment();
+        foreach (var statisticItem in statistic)
+        {
+            readingStatisticWindow.dataGrid.Items.Add(statisticItem);
+        }
+
+
+    }
+
+        private void btnAnalyzeCharactersPerSecondRegardingZero_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

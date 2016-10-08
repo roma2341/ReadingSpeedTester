@@ -12,11 +12,22 @@ namespace ReadingSpeedTester
         private String text;
         private List<TextFragment> fragments;
         private TextFragment currentTextFragment;
+       private DateTime creationTime;
         /// <summary>
         /// Demanded to store "red" text block, which is skeeped by user (he don't read it)
         /// </summary>
        private TextFragment extraTextFragment;
         private int lastIndex = -1;
+
+       public int GetLastIndex()
+       {
+           return lastIndex;
+       }
+
+       public int GetFragmentsLength()
+       {
+           return text.Length;
+       }
 
        private string textFragmentToString(TextFragment fragment)
        {
@@ -24,6 +35,11 @@ namespace ReadingSpeedTester
            int length = fragment.getLength();
            string result = text.Substring(start, length);
            return result;
+       }
+
+       public DateTime getCreationTime()
+       {
+           return creationTime;
        }
 
        public string getPerceivedText()
@@ -107,6 +123,7 @@ namespace ReadingSpeedTester
         private TextFragmentContainer()
         {
             fragments = new List<TextFragment>();
+            creationTime = DateTime.Now;
         }
         /// <summary>
         /// Return skeeped text fragment or null if new text fragment is started
@@ -123,11 +140,15 @@ namespace ReadingSpeedTester
             return startNewFragment(index);
             else return finishCurrentFragment(index);
         }
-
-        private TextFragment fillNotSelectedTextByFragment(int newStartIndex)
+        /// <summary>
+        /// Додає наступний фрагмент як прочитаний, на основі кінця попереднього і вказаного індексу
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public TextFragment StartAndFinishNewFragmentAfterLastFragment(int newStartIndex,bool isPerceived)
         {
-            int startIndex = lastIndex+1;
-            int endIndex = newStartIndex - 1;
+            int startIndex = lastIndex;
+            int endIndex = newStartIndex;
             int textlength = text.Length;
             if (newStartIndex < 0 || newStartIndex>=textlength)
             {
@@ -146,7 +167,7 @@ namespace ReadingSpeedTester
             if (fragments.Count>0) time = fragments.Last().getEndTime();
             startNewFragmentAtTime(startIndex, time, false);
             TextFragment finishedFragment = currentTextFragment;
-            finishCurrentFragment(endIndex,false);
+            finishCurrentFragment(endIndex, isPerceived);
             return finishedFragment;
 
 
@@ -165,10 +186,13 @@ namespace ReadingSpeedTester
         public TextFragment startNewFragmentAtTime(int startIndex,DateTime? time,bool createTextFragmentIfNotSelectedTextBefore = true)
         {
             TextFragment tempExtraFragment = null;
-            if (createTextFragmentIfNotSelectedTextBefore) tempExtraFragment = fillNotSelectedTextByFragment(startIndex);
+            if (createTextFragmentIfNotSelectedTextBefore && startIndex > 0) { 
+                tempExtraFragment = StartAndFinishNewFragmentAfterLastFragment(startIndex,false);
+               // startIndex = lastIndex;
+            }
             extraTextFragment = tempExtraFragment;
-            saveExtraTextFragment();
-            if (startIndex <= lastIndex)
+            //saveExtraTextFragment();
+            if (startIndex < lastIndex)
             {
                 Console.WriteLine("Error, start index must be greater than last selection index");
                 return null;
@@ -236,6 +260,31 @@ namespace ReadingSpeedTester
         {
             return fragments;
         }
+
+       public List<Tuple<String, String>> getStatisticPerFragment()
+       {
+           List<Tuple<String, String>> resultList = new List<Tuple<string, string>>();
+               
+            for (int i = 0; i < fragments.Count; i++)
+            {
+                int fragI = i + 1;
+                TextFragment fragment = fragments[i];
+                long timeDeltaMs = 0;
+                if (i == 0) timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), creationTime);
+                else
+                {
+                    TextFragment previousFragment =  fragments[i - 1];
+                    if(!previousFragment.getPerceivity())//не сприйнятий елемент по часу закривається одразу ж після початку, бо
+                    //він створюється після першого ж кліку, який відкриває елемент, що читається
+                    timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), previousFragment.getStartTime());
+                    else timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), previousFragment.getEndTime());//TODO i think this work
+                }
+                resultList.Add(new Tuple<String, String>("Q" + fragI, fragment.getLength().ToString() + "символів"));
+                resultList.Add(new Tuple<String, String>("T" + fragI, fragment.getTimeDeltaMS().ToString() + "мс"));
+                resultList.Add(new Tuple<string, string>("Тз" + fragI, timeDeltaMs.ToString()+"мс"));
+            }
+           return resultList;
+       }
 
     }
 }

@@ -11,26 +11,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Microsoft.Research.DynamicDataDisplay.ViewportRestrictions;
 
 namespace ReadingSpeedTester
 {
     /// <summary>
-    /// Interaction logic for Statistic.xaml
+    /// Interaction logic for ReadingStatisticWindow.xaml
     /// </summary>
-    public partial class Statistic : Window
+    public partial class ReadingStatisticWindow : Window
     {
-        public Statistic()
+        public ReadingStatisticWindow()
         {
             InitializeComponent();
-        }
-
-        public void limitAxis(double xMin, double xMax,double yMin, double yMax)
-        {
-            ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
-            restr.XRange = new DisplayRange(xMin, xMax);
-            restr.YRange = new DisplayRange(yMin, yMax);
-            ChartPlotterStatistic.Viewport.Restrictions.Add(restr);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

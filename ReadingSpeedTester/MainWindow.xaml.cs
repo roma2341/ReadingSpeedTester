@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,41 +25,74 @@ namespace ReadingSpeedTester
     {
         private TextFragmentContainer textFragmentcontainer;
         private ResultsWindow resultsWindow;
-        private int loadedTextLength = 0;
+        private List<int> indexesOfPunctuationMarks;
+        private int currentPunctuationMarkIndex = -1;
 
         public MainWindow()
         {
             InitializeComponent();
             rtbText.AddHandler(FrameworkElement.MouseDownEvent, new MouseButtonEventHandler(rtbText_MouseDown),true);
         }
+        /// <summary>
+        /// Додає фрагмент як прочитаний після останнього, на основі вказаного індексу
+        /// </summary>
+        /// <param name="carretPosition"></param>
+        void startAndFinishTextFragmentAndColorizeIt(int carretPosition)
+        {
+            TextFragment textFragmentAfterAction;
+            if (carretPosition == null || textFragmentcontainer == null) return;
+            textFragmentAfterAction = textFragmentcontainer.StartAndFinishNewFragmentAfterLastFragment((int)carretPosition,true);
+            bool colorizeTextFragmentCondition = textFragmentAfterAction != null &&
+                                                 textFragmentAfterAction.isFinished();
+            TextFragment extraFragment = textFragmentcontainer.getExtraTextFragment();
+            if (colorizeTextFragmentCondition)
+            {
+                updateRtbTextFromTextFragment(textFragmentAfterAction);
+            }
+        }
+
+        void startOrFinishTextFragmentAndColorizeIt(int carretPosition)
+        {
+            TextFragment textFragmentAfterAction;
+            Console.WriteLine("Mouse(LB) preview down. Carret position:" + carretPosition);
+            if (carretPosition == null || textFragmentcontainer == null) return;
+            textFragmentAfterAction = textFragmentcontainer.startOrFinishFragment((int)carretPosition);
+            bool colorizeTextFragmentCondition = textFragmentAfterAction != null &&
+                                                 textFragmentAfterAction.isFinished();
+            TextFragment extraFragment = textFragmentcontainer.getExtraTextFragment();
+            if (colorizeTextFragmentCondition)
+            {
+                updateRtbTextFromTextFragment(textFragmentAfterAction);
+            }
+            else //if not make green then make red
+            {
+                if (extraFragment != null)
+                    updateRtbTextFromTextFragment(extraFragment);
+            }
+        }
 
          void rtbText_MouseDown(object sender, MouseButtonEventArgs e)
          {
              var senderType = sender.GetType();
             int carretPosition = TextUtils.toCarretPosition(rtbText);
-             TextFragment textFragmentAfterAction;
-            Console.WriteLine("Mouse(LB) preview down. Carret position:"+ carretPosition);
-             if (carretPosition==null || textFragmentcontainer == null) return;
-            textFragmentAfterAction = textFragmentcontainer.startOrFinishFragment((int)carretPosition);
-             bool colorizeTextFragmentCondition = textFragmentAfterAction != null &&
-                                                  textFragmentAfterAction.isFinished();
-             TextFragment extraFragment = textFragmentcontainer.getExtraTextFragment();
-             if (colorizeTextFragmentCondition)
-             {
-                 updateRtbTextFromTextFragment(textFragmentAfterAction);
-             }
-             else //if not make green then make red
-             {
-                if (extraFragment != null)
-                    updateRtbTextFromTextFragment(extraFragment);
-            }
-             if (carretPosition >= loadedTextLength)
+             startOrFinishTextFragmentAndColorizeIt(carretPosition);
+             if (carretPosition >= textFragmentcontainer.GetFragmentsLength())
             {
                 finishSession();
             }
 
         }
 
+        private void addPunctuationMarksFromString(String str)
+        {
+            Regex rx = new Regex(@"[,\.]");
+            indexesOfPunctuationMarks = new List<int>();
+            foreach (Match match in rx.Matches(str))
+            {
+                int i = match.Index;
+                indexesOfPunctuationMarks.Add(i);
+            }
+        }
         private void btnLoad_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             String fileText = "";
@@ -66,13 +100,15 @@ namespace ReadingSpeedTester
             if (textFilePath != null)
                 fileText = loadFileContent(textFilePath);
             TextUtils.setRichTextBoxValue(rtbText, fileText);
-            textFragmentcontainer = TextFragmentContainer.fromText(TextUtils.textFromRichTextBox(rtbText));
+            addPunctuationMarksFromString(fileText);
+            currentPunctuationMarkIndex = 0;
+
+             textFragmentcontainer = TextFragmentContainer.fromText(TextUtils.textFromRichTextBox(rtbText));
         }
  
         private string loadFileContent(String path)
         {
             string text = System.IO.File.ReadAllText(path);
-            loadedTextLength = text.Length;
             return text;
         }
 
@@ -124,6 +160,34 @@ namespace ReadingSpeedTester
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Application.Current.Shutdown();
+        }
+
+        private void markFragmentReadedToNextPunctuationMark()
+        {
+            //TODO
+            if (currentPunctuationMarkIndex >= indexesOfPunctuationMarks.Count - 1)
+            {
+                finishSession();
+            }
+            //int indexToBeMarked = indexesOfPunctuationMarks[currentPunctuationMarkIndex];//textFragmentcontainer.GetFragmentsLength()
+            //end of text if no punctuation marks left
+            int indexToBeMarked = (currentPunctuationMarkIndex == indexesOfPunctuationMarks.Count - 1) ? textFragmentcontainer.GetFragmentsLength() : indexesOfPunctuationMarks[currentPunctuationMarkIndex];
+            startAndFinishTextFragmentAndColorizeIt(indexToBeMarked);
+            if (indexToBeMarked >= textFragmentcontainer.GetFragmentsLength())
+            {
+                finishSession();
+            }
+            currentPunctuationMarkIndex++;
+            //textFragmentcontainer.st
+        }
+
+        private void rtbText_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                e.Handled = true;
+                markFragmentReadedToNextPunctuationMark();
+            }
         }
     }
 }

@@ -26,6 +26,7 @@ namespace ReadingSpeedTester
         private ChartStatistic chartStatisticWindow;
         private ReadingStatisticWindow readingStatisticWindow;
         public ObservableDataSource<Point> statisticDataSource = null;
+        public ObservableDataSource<Point> extraStatisticDataSource = null;
         public ResultsWindow(TextFragmentContainer textFragmentcontainer)
         {
             InitializeComponent();
@@ -51,13 +52,13 @@ namespace ReadingSpeedTester
         {
             readingStatisticWindow.Show();
         }
+
         private void btnAnalyzeCharactersPerSecond_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             List<TextFragment> fragments = textFragmentcontainer.getFragments();
             long totalTime = 0;
             int totalLength = 0;
-            statisticDataSource.SuspendUpdate();
-            statisticDataSource.Collection.Clear();
+          preChartDisplaying();
             foreach (TextFragment fragment in fragments)
             {
               
@@ -70,17 +71,18 @@ namespace ReadingSpeedTester
 
 
             }
-            statisticDataSource.ResumeUpdate();
-            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            postChartDisplaying();
             chartStatisticWindow.Show();
             // chartStatisticWindow.limitAxis(0, 0, 100, 100);
         }
         private void initChartStatisticWindow()
         {
             chartStatisticWindow = new ChartStatistic();
+            extraStatisticDataSource = new ObservableDataSource<Point>();
             statisticDataSource = new ObservableDataSource<Point>();
             statisticDataSource.SetXYMapping(p => p);
             chartStatisticWindow.LinegraphStatistic.Plotter.Children.Add(new LineGraph(statisticDataSource));
+            chartStatisticWindow.LinegraphStatistic.Plotter.Children.Add(new LineGraph(extraStatisticDataSource));
             //chartStatisticWindow.Show();
             // _noiseSource.SuspendUpdate();
             //_noiseSource.Collection.Clear();
@@ -92,13 +94,14 @@ namespace ReadingSpeedTester
             readingStatisticWindow = new ReadingStatisticWindow();
         }
 
+        
+
         private void btnAnalyzeCharactersPerSecondActive_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             List<TextFragment> fragments = textFragmentcontainer.getFragments();
             long totalTime = 0;
             int totalLength = 0;
-            statisticDataSource.SuspendUpdate();
-            statisticDataSource.Collection.Clear();
+           preChartDisplaying();
             foreach (TextFragment fragment in fragments)
             {
 
@@ -111,8 +114,7 @@ namespace ReadingSpeedTester
 
 
             }
-            statisticDataSource.ResumeUpdate();
-            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            postChartDisplaying();
             chartStatisticWindow.Show();
         }
 
@@ -120,12 +122,13 @@ namespace ReadingSpeedTester
         {
             List<TextFragment> fragments = textFragmentcontainer.getFragments();
             long totalTime = 0;
-            statisticDataSource.SuspendUpdate();
-            statisticDataSource.Collection.Clear();
+            preChartDisplaying();
+            int totalLength = 0;
             foreach (TextFragment fragment in fragments)
             {
 
                 int length = fragment.getLength();
+                totalLength += length;
                 long time = fragment.getTimeDeltaMS();
                 totalTime += time;
                 // if (fragment.getPerceivity())
@@ -133,17 +136,34 @@ namespace ReadingSpeedTester
 
 
             }
-            statisticDataSource.ResumeUpdate();
-            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            int totalTimeSec = (int)(totalTime/1000);
+            int averageLength = totalLength/ totalTimeSec;
+            extraStatisticDataSource.Collection.Add(new Point(0, averageLength));
+            extraStatisticDataSource.Collection.Add(new Point(totalTimeSec, averageLength));
+            postChartDisplaying();
             chartStatisticWindow.Show();
+        }
+        private void preChartDisplaying()
+        {
+            statisticDataSource.SuspendUpdate();
+            extraStatisticDataSource.SuspendUpdate();
+            statisticDataSource.Collection.Clear();
+            extraStatisticDataSource.Collection.Clear();
+        }
+
+        private void postChartDisplaying()
+        {
+            statisticDataSource.ResumeUpdate();
+            extraStatisticDataSource.ResumeUpdate();
+            chartStatisticWindow.ChartPlotterStatistic.FitToView();
         }
 
         private void btnAnalyzeCharactersPerSecondRegardingZero_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             List<TextFragment> fragments = textFragmentcontainer.getFragments();
             long totalTime = 0;
-            statisticDataSource.SuspendUpdate();
-            statisticDataSource.Collection.Clear();
+            int charsCount = 0;
+            preChartDisplaying();
             foreach (TextFragment fragment in fragments)
             {
 
@@ -151,13 +171,15 @@ namespace ReadingSpeedTester
                 long time = fragment.getTimeDeltaMS();
                 totalTime += time;
                 if (!fragment.getPerceivity()) length = -length;
+                charsCount += length;
                 // if (fragment.getPerceivity())
-                statisticDataSource.Collection.Add(new Point(totalTime / 1000, length));
-
-
+                statisticDataSource.Collection.Add(new Point(totalTime / 1000, length));           
             }
-            statisticDataSource.ResumeUpdate();
-            chartStatisticWindow.ChartPlotterStatistic.FitToView();
+            int totalTimeMs = (int) (totalTime / 1000);
+            int averageLength = (int)(charsCount/ totalTimeMs);
+            extraStatisticDataSource.Collection.Add(new Point(0, averageLength));
+            extraStatisticDataSource.Collection.Add(new Point(totalTimeMs, averageLength));
+            postChartDisplaying();
             chartStatisticWindow.Show();
         }
 

@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Research.DynamicDataDisplay;
-using Microsoft.Research.DynamicDataDisplay.ViewportRestrictions;
 
 namespace ReadingSpeedTester
 {
-    public class ViewportAxesRangeRestriction : IViewportRestriction
+    public class ViewportAxesRangeRestriction
     {
         public DisplayRange XRange = null;
         public DisplayRange YRange = null;

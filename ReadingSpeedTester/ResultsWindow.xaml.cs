@@ -65,9 +65,12 @@ namespace ReadingSpeedTester
                 int length = fragment.getLength();
                 long time = fragment.getTimeDeltaMS();
                 totalTime += time;
-                totalLength += length;
-               // if (fragment.getPerceivity())
-                statisticDataSource.Collection.Add(new Point(totalTime / 1000, totalLength));
+                if (fragment.getPerceivity())
+                {
+                    totalLength += length;
+                    statisticDataSource.Collection.Add(new Point(totalTime/1000, totalLength));
+                }
+                else statisticDataSource.Collection.Add(new Point(totalTime/1000, totalLength));
 
 
             }
@@ -81,8 +84,8 @@ namespace ReadingSpeedTester
             extraStatisticDataSource = new ObservableDataSource<Point>();
             statisticDataSource = new ObservableDataSource<Point>();
             statisticDataSource.SetXYMapping(p => p);
-            chartStatisticWindow.LinegraphStatistic.Plotter.Children.Add(new LineGraph(statisticDataSource));
-            chartStatisticWindow.LinegraphStatistic.Plotter.Children.Add(new LineGraph(extraStatisticDataSource));
+            chartStatisticWindow.ChartPlotterStatistic.Children.Add(new LineGraph(statisticDataSource));
+            chartStatisticWindow.ChartPlotterStatistic.Children.Add(new LineGraph(extraStatisticDataSource));
             //chartStatisticWindow.Show();
             // _noiseSource.SuspendUpdate();
             //_noiseSource.Collection.Clear();
@@ -131,8 +134,10 @@ namespace ReadingSpeedTester
                 totalLength += length;
                 long time = fragment.getTimeDeltaMS();
                 totalTime += time;
-                // if (fragment.getPerceivity())
+                 if (fragment.getPerceivity())
                 statisticDataSource.Collection.Add(new Point(totalTime / 1000, length));
+                 else
+                    statisticDataSource.Collection.Add(new Point(totalTime / 1000, 0));
 
 
             }

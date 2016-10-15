@@ -11,18 +11,18 @@ namespace ReadingSpeedTester
     {
         private String text;
         private List<TextFragment> fragments;
-        private TextFragment currentTextFragment;
        private DateTime creationTime;
+        private ReadingActivity readingActivity = null;
         /// <summary>
         /// Demanded to store "red" text block, which is skeeped by user (he don't read it)
         /// </summary>
-       private TextFragment extraTextFragment;
         private int lastIndex = -1;
 
        public int GetLastIndex()
        {
            return lastIndex;
        }
+
 
        public int GetFragmentsLength()
        {
@@ -123,130 +123,86 @@ namespace ReadingSpeedTester
         private TextFragmentContainer()
         {
             fragments = new List<TextFragment>();
+            readingActivity = new ReadingActivity();
             creationTime = DateTime.Now;
         }
+
+       public void toggleReadingActivity()
+       {
+            readingActivity.toggleActivity();
+       }
         /// <summary>
         /// Return skeeped text fragment or null if new text fragment is started
         /// </summary>
         /// <returns></returns>
-       public TextFragment getExtraTextFragment()
-       {
-           return extraTextFragment;
-       }
 
-        public TextFragment startOrFinishFragment(int index)
+
+        public TextFragment createFirstFragment(int endIndex)
         {
-            if (currentTextFragment == null)
-            return startNewFragment(index);
-            else return finishCurrentFragment(index);
-        }
-        /// <summary>
-        /// Додає наступний фрагмент як прочитаний, на основі кінця попереднього і вказаного індексу
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public TextFragment StartAndFinishNewFragmentAfterLastFragment(int newStartIndex,bool isPerceived)
-        {
-            int startIndex = lastIndex;
-            int endIndex = newStartIndex;
-            int textlength = text.Length;
-            if (newStartIndex < 0 || newStartIndex>=textlength)
-            {
-                throw new IndexOutOfRangeException(string.Format("index {0} out of range [0;{1})", newStartIndex, textlength));
-            }
-            if (startIndex >= textlength || startIndex < 0)
-            {
-                return null;
-            }
-            if (endIndex >= textlength || endIndex < 0)
-            {
-                return null;
-            }
-            if (startIndex >= endIndex) return null;
-            DateTime time = DateTime.Now;
-            if (fragments.Count>0) time = fragments.Last().getEndTime();
-            startNewFragmentAtTime(startIndex, time, false);
-            TextFragment finishedFragment = currentTextFragment;
-            finishCurrentFragment(endIndex, isPerceived);
-            return finishedFragment;
-
-
+          return  createNewFragmentAtTimeTillNow(endIndex,creationTime);
         }
 
-       public TextFragment startNewFragment(int startIndex, bool createTextFragmentIfNotSeelctedTextBefore = true)
+       public TextFragment addPerceivedFragment(int endIndex)
        {
-           return startNewFragmentAtTime(startIndex, null, createTextFragmentIfNotSeelctedTextBefore);     
+            readingActivity = new ReadingActivity();
+          TextFragment perceivedFragment = createFragment(endIndex);
+            perceivedFragment.setPerceivity(true);
+            perceivedFragment.setActivity(readingActivity);
+           fragments.Add(perceivedFragment);
+           return perceivedFragment;
        }
+        public TextFragment addNotPerceivedFragment(int endIndex)
+        {
+            readingActivity = new ReadingActivity();
+            TextFragment notPerceivedFragment = createFragment(endIndex);
+            notPerceivedFragment.setPerceivity(false);
+            notPerceivedFragment.setActivity(readingActivity);
+            fragments.Add(notPerceivedFragment);
+            return notPerceivedFragment;
+        }
+
+        public TextFragment createFragment(int endIndex)
+       {
+           TextFragment fragment;
+           if (fragments.Count < 1)
+           {
+
+               fragment = createFirstFragment(endIndex);
+           }
+           else
+           {
+               fragment = createNewFragmentAtTimeTillNow(endIndex, fragments[fragments.Count-1].getEndTime());
+           }
+           return fragment;
+       }
+ 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="startIndex"></param>
         /// <param name="createTextFragmentIfNotSelectedTextBefore">If true - create new fragment between old fragment and new</param>
         /// <returns></returns>
-        public TextFragment startNewFragmentAtTime(int startIndex,DateTime? time,bool createTextFragmentIfNotSelectedTextBefore = true)
+        public TextFragment createNewFragmentAtTimeTillNow(int endIndex,DateTime? time)
         {
-            TextFragment tempExtraFragment = null;
-            if (createTextFragmentIfNotSelectedTextBefore && startIndex > 0) { 
-                tempExtraFragment = StartAndFinishNewFragmentAfterLastFragment(startIndex,false);
-               // startIndex = lastIndex;
-            }
-            extraTextFragment = tempExtraFragment;
+            int startIndex = lastIndex + 1;
             //saveExtraTextFragment();
-            if (startIndex < lastIndex)
-            {
-                Console.WriteLine("Error, start index must be greater than last selection index");
-                return null;
-            }
+ 
             int textlength = text.Length;
             if (startIndex >= textlength || startIndex < 0)
             {
-             throw new IndexOutOfRangeException(string.Format("index {0} out of range [0;{1})",startIndex, textlength));
+             throw new IndexOutOfRangeException(string.Format("index {0} out of range [0;{1})", startIndex, textlength));
             }
-            currentTextFragment = TextFragment.beginFragment(startIndex,time);
-            updateLastIndex(startIndex);
-            Console.WriteLine("New text fragment successfully started at index:"+startIndex);
-            return currentTextFragment;
-        }
-
-        public TextFragment finishCurrentFragment(int endIndex, bool isPerceived = true)
-        {
-            currentTextFragment.setPerceivity(isPerceived);
-            if (endIndex <= lastIndex)
-            {
-                Console.WriteLine("Error, start index must be greater than last selection index");
-                return null;
-            }
-            int textlength = text.Length;
-            if (endIndex >= textlength || endIndex < 0)
-            {
-                throw new IndexOutOfRangeException(string.Format("index {0} out of range [0;{1})", endIndex, textlength));
-            }
+            TextFragment currentTextFragment = TextFragment.beginFragment(startIndex, time);
             currentTextFragment.finish(endIndex);
-            saveCurrentTextFragment();
-            TextFragment finishedFragment = currentTextFragment;
-            resetCurrentTextFragment();
             updateLastIndex(endIndex);
-            Console.WriteLine("New text fragment successfully finished at index:" + endIndex);
-            return finishedFragment;
+            Console.WriteLine("New text fragment successfully started at index:"+ startIndex);
+            return currentTextFragment;
         }
 
         private void updateLastIndex(int index)
         {
+            Console.WriteLine("Last index updated to "+ index);
             this.lastIndex = index;
-        }
-
-       private void saveExtraTextFragment()
-       {
-            if (extraTextFragment!=null)
-           fragments.Add(extraTextFragment);
-       }
-        private void saveCurrentTextFragment()
-        {
-            fragments.Add(currentTextFragment);
-        }
-        private void resetCurrentTextFragment()
-        {
-            currentTextFragment = null;
         }
 
         public static TextFragmentContainer fromText(String text)
@@ -269,19 +225,16 @@ namespace ReadingSpeedTester
             {
                 int fragI = i + 1;
                 TextFragment fragment = fragments[i];
-                long timeDeltaMs = 0;
-                if (i == 0) timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), creationTime);
-                else
-                {
                     TextFragment previousFragment =  fragments[i - 1];
-                    if(!previousFragment.getPerceivity())//не сприйнятий елемент по часу закривається одразу ж після початку, бо
+                   // if(!previousFragment.getPerceivity())//не сприйнятий елемент по часу закривається одразу ж після початку, бо
                     //він створюється після першого ж кліку, який відкриває елемент, що читається
-                    timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), previousFragment.getStartTime());
-                    else timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), previousFragment.getEndTime());//TODO i think this work
-                }
+                    //timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), previousFragment.getStartTime());
+               long fragmentIdleTimeMs = fragment.getActivity().getTotalPauseTimeMs();
+                long fragmentActiveTimeMs = fragment.getActivity().getTotalActiveTimeMs();
+                // else timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), previousFragment.getEndTime());//TODO i think this work
                 resultList.Add(new Tuple<String, String>("Q" + fragI, fragment.getLength().ToString() + "символів"));
-                resultList.Add(new Tuple<String, String>("T" + fragI, fragment.getTimeDeltaMS().ToString() + "мс"));
-                resultList.Add(new Tuple<string, string>("Тз" + fragI, timeDeltaMs.ToString()+"мс"));
+                resultList.Add(new Tuple<String, String>("T" + fragI, fragmentActiveTimeMs.ToString() + "мс"));
+                resultList.Add(new Tuple<string, string>("Тз" + fragI, fragmentIdleTimeMs.ToString()+"мс"));
             }
            return resultList;
        }

@@ -31,52 +31,64 @@ namespace ReadingSpeedTester
         public MainWindow()
         {
             InitializeComponent();
-            rtbText.AddHandler(FrameworkElement.MouseDownEvent, new MouseButtonEventHandler(rtbText_MouseDown),true);
+            rtbText.AddHandler(FrameworkElement.MouseLeftButtonDownEvent, new MouseButtonEventHandler(rtbText_MouseLeftDown),true);
+            rtbText.AddHandler(FrameworkElement.MouseRightButtonDownEvent, new MouseButtonEventHandler(rtbText_MouseRightDown), true);
         }
-        /// <summary>
-        /// Додає фрагмент як прочитаний після останнього, на основі вказаного індексу
-        /// </summary>
-        /// <param name="carretPosition"></param>
-        void startAndFinishTextFragmentAndColorizeIt(int carretPosition)
+
+
+        void createTextFragmentAndColorizeIt(int carretPosition)
         {
+            if (carretPosition <= textFragmentcontainer.GetLastIndex()) return;
             TextFragment textFragmentAfterAction;
             if (carretPosition == null || textFragmentcontainer == null) return;
-            textFragmentAfterAction = textFragmentcontainer.StartAndFinishNewFragmentAfterLastFragment((int)carretPosition,true);
-            bool colorizeTextFragmentCondition = textFragmentAfterAction != null &&
-                                                 textFragmentAfterAction.isFinished();
-            TextFragment extraFragment = textFragmentcontainer.getExtraTextFragment();
-            if (colorizeTextFragmentCondition)
+            textFragmentAfterAction = textFragmentcontainer.addPerceivedFragment((int)carretPosition);
+            updateRtbTextFromTextFragment(textFragmentAfterAction);
+            if (SessionFinishingPossible(carretPosition))
             {
-                updateRtbTextFromTextFragment(textFragmentAfterAction);
+                finishSession();
+            }
+        }
+        void moveLastFragmentIndexAndColorizeIt(int moveToPosition)
+        {
+            if (moveToPosition <= textFragmentcontainer.GetLastIndex()) return;
+            TextFragment textFragmentAfterAction;
+            if (moveToPosition == null || textFragmentcontainer == null) return;
+            textFragmentAfterAction = textFragmentcontainer.addNotPerceivedFragment((int)moveToPosition);
+            updateRtbTextFromTextFragment(textFragmentAfterAction);
+            if (SessionFinishingPossible(moveToPosition))
+            {
+                finishSession();
             }
         }
 
-        void startOrFinishTextFragmentAndColorizeIt(int carretPosition)
+        private bool SessionFinishingPossible(int carretPosition)
         {
-            TextFragment textFragmentAfterAction;
-            Console.WriteLine("Mouse(LB) preview down. Carret position:" + carretPosition);
-            if (carretPosition == null || textFragmentcontainer == null) return;
-            textFragmentAfterAction = textFragmentcontainer.startOrFinishFragment((int)carretPosition);
-            bool colorizeTextFragmentCondition = textFragmentAfterAction != null &&
-                                                 textFragmentAfterAction.isFinished();
-            TextFragment extraFragment = textFragmentcontainer.getExtraTextFragment();
-            if (colorizeTextFragmentCondition)
-            {
-                updateRtbTextFromTextFragment(textFragmentAfterAction);
-            }
-            else //if not make green then make red
-            {
-                if (extraFragment != null)
-                    updateRtbTextFromTextFragment(extraFragment);
-            }
+            return carretPosition >= textFragmentcontainer.GetFragmentsLength();
         }
 
-         void rtbText_MouseDown(object sender, MouseButtonEventArgs e)
+         void rtbText_MouseLeftDown(object sender, MouseButtonEventArgs e)
          {
              var senderType = sender.GetType();
             int carretPosition = TextUtils.toCarretPosition(rtbText);
-             startOrFinishTextFragmentAndColorizeIt(carretPosition);
-             if (carretPosition >= textFragmentcontainer.GetFragmentsLength())
+            Console.WriteLine("left click carret position:" + carretPosition);
+            createTextFragmentAndColorizeIt(carretPosition);
+            if (SessionFinishingPossible(carretPosition))
+            {
+                finishSession();
+            }
+
+        }
+        void rtbText_MouseRightDown(object sender, MouseButtonEventArgs e)
+        {
+            //set text cursor position;
+            RichTextBox box = (RichTextBox)sender;
+            box.CaretPosition = box.GetPositionFromPoint(e.GetPosition(box), true);
+
+            var senderType = sender.GetType();
+            int carretPosition = TextUtils.toCarretPosition(rtbText);
+            Console.WriteLine("right click carret position:"+carretPosition);
+            moveLastFragmentIndexAndColorizeIt(carretPosition);
+            if (carretPosition >= textFragmentcontainer.GetFragmentsLength())
             {
                 finishSession();
             }
@@ -172,7 +184,7 @@ namespace ReadingSpeedTester
             //int indexToBeMarked = indexesOfPunctuationMarks[currentPunctuationMarkIndex];//textFragmentcontainer.GetFragmentsLength()
             //end of text if no punctuation marks left
             int indexToBeMarked = (currentPunctuationMarkIndex == indexesOfPunctuationMarks.Count - 1) ? textFragmentcontainer.GetFragmentsLength() : indexesOfPunctuationMarks[currentPunctuationMarkIndex];
-            startAndFinishTextFragmentAndColorizeIt(indexToBeMarked);
+            createTextFragmentAndColorizeIt(indexToBeMarked);
             if (indexToBeMarked >= textFragmentcontainer.GetFragmentsLength())
             {
                 finishSession();

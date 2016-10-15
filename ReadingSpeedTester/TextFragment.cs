@@ -15,6 +15,18 @@ namespace ReadingSpeedTester
         private DateTime endTime;
         private bool isPerceived = false;//Чи прочитаний(сприйнятий)
         private bool finished = false;
+        private ReadingActivity readingActivity;
+
+
+        public void setActivity(ReadingActivity activity)
+        {
+            this.readingActivity = activity;
+        }
+
+        public ReadingActivity getActivity()
+        {
+            return readingActivity;
+        }
 
         public DateTime getStartTime()
         {

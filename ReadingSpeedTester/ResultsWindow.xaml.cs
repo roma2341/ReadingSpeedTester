@@ -53,6 +53,11 @@ namespace ReadingSpeedTester
             readingStatisticWindow.Show();
         }
 
+        private void addZeroPointtoCharacter()
+        {
+            statisticDataSource.Collection.Add(new Point(0, 0));
+        }
+
         private void btnAnalyzeCharactersPerSecond_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             List<TextFragment> fragments = textFragmentcontainer.getFragments();
@@ -63,7 +68,7 @@ namespace ReadingSpeedTester
             {
               
                 int length = fragment.getLength();
-                long time = fragment.getTimeDeltaMS();
+                long time = fragment.getActivity().getTotalTimeMs();
                 totalTime += time;
                 if (fragment.getPerceivity())
                 {
@@ -109,7 +114,7 @@ namespace ReadingSpeedTester
             {
 
                 int length = fragment.getLength();
-                long time = fragment.getTimeDeltaMS();
+                long time = fragment.getActivity().getTotalActiveTimeMs();
                 totalTime += time;
                 totalLength = length;
                  if (fragment.getPerceivity())
@@ -132,7 +137,7 @@ namespace ReadingSpeedTester
 
                 int length = fragment.getLength();
                 totalLength += length;
-                long time = fragment.getTimeDeltaMS();
+                long time = fragment.getActivity().getTotalTimeMs();
                 totalTime += time;
                  if (fragment.getPerceivity())
                 statisticDataSource.Collection.Add(new Point(totalTime / 1000, length));
@@ -142,7 +147,7 @@ namespace ReadingSpeedTester
 
             }
             int totalTimeSec = (int)(totalTime/1000);
-            int averageLength = totalLength/ totalTimeSec;
+            int averageLength = totalTimeSec == 0 ? 0 : totalLength / totalTimeSec;
             extraStatisticDataSource.Collection.Add(new Point(0, averageLength));
             extraStatisticDataSource.Collection.Add(new Point(totalTimeSec, averageLength));
             postChartDisplaying();
@@ -154,6 +159,7 @@ namespace ReadingSpeedTester
             extraStatisticDataSource.SuspendUpdate();
             statisticDataSource.Collection.Clear();
             extraStatisticDataSource.Collection.Clear();
+            addZeroPointtoCharacter();
         }
 
         private void postChartDisplaying()
@@ -173,7 +179,7 @@ namespace ReadingSpeedTester
             {
 
                 int length = fragment.getLength();
-                long time = fragment.getTimeDeltaMS();
+                long time = fragment.getActivity().getTotalTimeMs();
                 totalTime += time;
                 if (!fragment.getPerceivity()) length = -length;
                 charsCount += length;

@@ -11,8 +11,6 @@ namespace ReadingSpeedTester
     {
         private int startIndex;
         private int endIndex;
-        private DateTime startTime;
-        private DateTime endTime;
         private bool isPerceived = false;//Чи прочитаний(сприйнятий)
         private bool finished = false;
         private ReadingActivity readingActivity;
@@ -28,15 +26,6 @@ namespace ReadingSpeedTester
             return readingActivity;
         }
 
-        public DateTime getStartTime()
-        {
-            return startTime;
-        }
-
-        public DateTime getEndTime()
-        {
-            return endTime;
-        }
         public bool isFinished()
         {
             return finished;
@@ -60,19 +49,9 @@ namespace ReadingSpeedTester
         {
             return isPerceived;
         }
-
-        public static TextFragment beginFragment(int start,DateTime? time = null)
-        {
-            TextFragment textFragment = new TextFragment();
-            textFragment.startIndex = start;
-            textFragment.startTime = null==time ? DateTime.Now : (DateTime)time;
-            return textFragment;
-        }
-
         public void finish(int index)
         {
             endIndex = index;
-            endTime = DateTime.Now;
             this.finished = true;
         }
 
@@ -85,17 +64,11 @@ namespace ReadingSpeedTester
         {
             return endIndex - startIndex;
         }
-
-        public long getTimeDeltaMS()
+        public static TextFragment beginFragment(int start)
         {
-            return (long)(endTime.Subtract(startTime).TotalMilliseconds);
-        }
-
-        public long getTimeDifference(DateTime time)
-        {
-            return (long) time.Subtract(startTime).TotalMilliseconds;
-
-
+            TextFragment textFragment = new TextFragment();
+            textFragment.startIndex = start;
+            return textFragment;
         }
 
     }

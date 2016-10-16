@@ -11,6 +11,6 @@ namespace ReadingSpeedTester
         bool isPaused();
         void pause();
         void activate();
-        void toggleActivity();
+        bool toggleActivity();
     }
 }

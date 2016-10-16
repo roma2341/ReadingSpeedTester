@@ -7,7 +7,7 @@ namespace ReadingSpeedTester
 {
    public class ReadingActivity : IPausable
     {
-        private bool active = false;
+        private bool active = true;
         private long totalPauseTimeMs = 0;
         private long totalActiveTimeMs = 0;
         DateTime lastStateChangingTime;
@@ -26,6 +26,11 @@ namespace ReadingSpeedTester
         {
             return totalActiveTimeMs;
         }
+
+       public long getTotalTimeMs()
+       {
+           return totalPauseTimeMs + totalActiveTimeMs;
+       }
         public void activate()
         {
             if (active) return;//already active, do nothing
@@ -33,8 +38,8 @@ namespace ReadingSpeedTester
             long pauseTime = TimeUtils.deltaBetweenTwoDatesMs(lastStateChangingTime, DateTime.Now);
             totalPauseTimeMs += pauseTime;
             lastStateChangingTime = DateTime.Now;
+            Console.WriteLine("activate");
         }
-
         public bool isPaused()
         {
             return !active;
@@ -47,12 +52,21 @@ namespace ReadingSpeedTester
             long activeTime = TimeUtils.deltaBetweenTwoDatesMs(lastStateChangingTime, DateTime.Now);
             totalActiveTimeMs += activeTime;
             lastStateChangingTime = DateTime.Now;
+            Console.WriteLine("pause");
         }
 
-        public void toggleActivity()
+        public bool toggleActivity()
         {
-            if (active) pause();
-            else activate();
+            if (active)
+            {
+                pause();
+                return true;
+            }
+            else
+            {
+                activate();
+                return false;
+            }
         }
 
         bool IPausable.isActive()

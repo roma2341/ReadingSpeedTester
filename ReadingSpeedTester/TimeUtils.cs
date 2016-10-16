@@ -18,7 +18,7 @@ namespace ReadingSpeedTester
 
         public static long deltaBetweenTwoDatesMs(DateTime date1, DateTime date2)
         {
-            long delta = dateTimeToMS(date1) - dateTimeToMS(date2);
+            long delta = Math.Abs(dateTimeToMS(date1) - dateTimeToMS(date2));
             return delta;
         }
 

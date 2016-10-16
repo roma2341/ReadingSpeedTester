@@ -75,13 +75,13 @@ namespace ReadingSpeedTester
             {
                 if (fragment.getPerceivity())
                 {
-                    readingTimeMs += fragment.getTimeDeltaMS();
+                    readingTimeMs += fragment.getActivity().getTotalActiveTimeMs();
                     readedCharacters += fragment.getLength();
                     readedWords += TimeUtils.WordCounting.CountWords1(textFragmentToString(fragment));
                 }
                 else
                 {
-                    idleTime += fragment.getTimeDeltaMS();
+                    idleTime += fragment.getActivity().getTotalPauseTimeMs();
                     ignoredCharacters += fragment.getLength();
                     ignoredWords += TimeUtils.WordCounting.CountWords1(textFragmentToString(fragment));
                 }
@@ -127,9 +127,14 @@ namespace ReadingSpeedTester
             creationTime = DateTime.Now;
         }
 
-       public void toggleReadingActivity()
+       public bool toggleReadingActivity()
        {
-            readingActivity.toggleActivity();
+            return readingActivity.toggleActivity();
+       }
+
+       public void resumeReadingActivity()
+       {
+            readingActivity.activate();
        }
         /// <summary>
         /// Return skeeped text fragment or null if new text fragment is started
@@ -137,19 +142,16 @@ namespace ReadingSpeedTester
         /// <returns></returns>
 
 
-        public TextFragment createFirstFragment(int endIndex)
-        {
-          return  createNewFragmentAtTimeTillNow(endIndex,creationTime);
-        }
-
        public TextFragment addPerceivedFragment(int endIndex)
        {
-            readingActivity = new ReadingActivity();
+          
           TextFragment perceivedFragment = createFragment(endIndex);
             perceivedFragment.setPerceivity(true);
+            readingActivity.pause();
             perceivedFragment.setActivity(readingActivity);
-           fragments.Add(perceivedFragment);
-           return perceivedFragment;
+            fragments.Add(perceivedFragment);
+            readingActivity = new ReadingActivity();
+            return perceivedFragment;
        }
         public TextFragment addNotPerceivedFragment(int endIndex)
         {
@@ -163,41 +165,21 @@ namespace ReadingSpeedTester
 
         public TextFragment createFragment(int endIndex)
        {
-           TextFragment fragment;
-           if (fragments.Count < 1)
-           {
-
-               fragment = createFirstFragment(endIndex);
-           }
-           else
-           {
-               fragment = createNewFragmentAtTimeTillNow(endIndex, fragments[fragments.Count-1].getEndTime());
-           }
-           return fragment;
-       }
- 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="startIndex"></param>
-        /// <param name="createTextFragmentIfNotSelectedTextBefore">If true - create new fragment between old fragment and new</param>
-        /// <returns></returns>
-        public TextFragment createNewFragmentAtTimeTillNow(int endIndex,DateTime? time)
-        {
             int startIndex = lastIndex + 1;
             //saveExtraTextFragment();
- 
+
             int textlength = text.Length;
             if (startIndex >= textlength || startIndex < 0)
             {
-             throw new IndexOutOfRangeException(string.Format("index {0} out of range [0;{1})", startIndex, textlength));
+                throw new IndexOutOfRangeException(string.Format("index {0} out of range [0;{1})", startIndex, textlength));
             }
-            TextFragment currentTextFragment = TextFragment.beginFragment(startIndex, time);
+            TextFragment currentTextFragment = TextFragment.beginFragment(startIndex);
             currentTextFragment.finish(endIndex);
             updateLastIndex(endIndex);
-            Console.WriteLine("New text fragment successfully started at index:"+ startIndex);
+            Console.WriteLine("New text fragment successfully started at index:" + startIndex);
             return currentTextFragment;
         }
+
 
         private void updateLastIndex(int index)
         {
@@ -225,7 +207,6 @@ namespace ReadingSpeedTester
             {
                 int fragI = i + 1;
                 TextFragment fragment = fragments[i];
-                    TextFragment previousFragment =  fragments[i - 1];
                    // if(!previousFragment.getPerceivity())//не сприйнятий елемент по часу закривається одразу ж після початку, бо
                     //він створюється після першого ж кліку, який відкриває елемент, що читається
                     //timeDeltaMs = TimeUtils.deltaBetweenTwoDatesMs(fragment.getStartTime(), previousFragment.getStartTime());

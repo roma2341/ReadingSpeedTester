@@ -27,6 +27,7 @@ namespace ReadingSpeedTester
         private ResultsWindow resultsWindow;
         private List<int> indexesOfPunctuationMarks;
         private int currentPunctuationMarkIndex = -1;
+      
 
         public MainWindow()
         {
@@ -68,7 +69,8 @@ namespace ReadingSpeedTester
 
          void rtbText_MouseLeftDown(object sender, MouseButtonEventArgs e)
          {
-             var senderType = sender.GetType();
+            unPause();
+            var senderType = sender.GetType();
             int carretPosition = TextUtils.toCarretPosition(rtbText);
             Console.WriteLine("left click carret position:" + carretPosition);
             createTextFragmentAndColorizeIt(carretPosition);
@@ -80,6 +82,7 @@ namespace ReadingSpeedTester
         }
         void rtbText_MouseRightDown(object sender, MouseButtonEventArgs e)
         {
+            unPause();
             //set text cursor position;
             RichTextBox box = (RichTextBox)sender;
             box.CaretPosition = box.GetPositionFromPoint(e.GetPosition(box), true);
@@ -199,6 +202,29 @@ namespace ReadingSpeedTester
             {
                 e.Handled = true;
                 markFragmentReadedToNextPunctuationMark();
+            }
+        }
+
+        private bool togglePause()
+        {
+            bool isPaused = textFragmentcontainer.toggleReadingActivity();
+            if (isPaused) rtbText.Background = Brushes.Yellow;
+            else rtbText.Background = Brushes.White;
+            return isPaused;
+        }
+
+        public void unPause()
+        {
+            textFragmentcontainer.resumeReadingActivity();
+            rtbText.Background = Brushes.White;
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
+            {
+                e.Handled = true;
+                togglePause();
             }
         }
     }

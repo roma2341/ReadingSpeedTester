@@ -22,6 +22,12 @@ namespace ReadingSpeedTester
             return delta;
         }
 
+        public static double msToS(long ms)
+        {
+            double MS_IN_ONE_SECOND = 1000;
+            return ms / MS_IN_ONE_SECOND;
+        }
+
         public static string formatTimeToHumanReadableForm(long ms)
         {
             TimeSpan t = TimeSpan.FromMilliseconds(ms);

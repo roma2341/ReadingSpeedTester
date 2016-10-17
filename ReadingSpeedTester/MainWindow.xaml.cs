@@ -215,6 +215,7 @@ namespace ReadingSpeedTester
 
         public void unPause()
         {
+            if (textFragmentcontainer == null) return;
             textFragmentcontainer.resumeReadingActivity();
             rtbText.Background = Brushes.White;
         }

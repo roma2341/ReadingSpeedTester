@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ReadingSpeedTester
 {
@@ -47,7 +48,7 @@ namespace ReadingSpeedTester
            StringBuilder strBuilder = new StringBuilder();
            foreach (TextFragment fragment in fragments)
            {
-               if (fragment.getPerceivity()) //if text fragment is readed
+               if (fragment.getPerceivity()) //if text fragment is includeReaded
                    strBuilder.Append(textFragmentToString(fragment));
            }
            return strBuilder.ToString();
@@ -58,7 +59,7 @@ namespace ReadingSpeedTester
             StringBuilder strBuilder = new StringBuilder();
             foreach (TextFragment fragment in fragments)
             {
-                if (!fragment.getPerceivity()) //if text fragment is readed
+                if (!fragment.getPerceivity()) //if text fragment is includeReaded
                     strBuilder.Append(textFragmentToString(fragment));
             }
             return strBuilder.ToString();
@@ -219,6 +220,59 @@ namespace ReadingSpeedTester
             }
            return resultList;
        }
+        public Dictionary<String,Object> generateStatisticChartData(ChartStatisticCriteria criteria)
+          //baseline,average
+        {
+            Dictionary<String, Object> result = new Dictionary<string, object>();
+            List<Point> points = new List<Point>();
+            List<TextFragment> fragments = getFragments();
+            long totalTime = 0;
+            int totalLength = 0;
+            foreach (TextFragment fragment in fragments)
+            {
+                int length = 0;
+                long time = 0;
+                if ((criteria.IncludeReaded && fragment.getPerceivity()) || (criteria.IncludeSkipped && !fragment.getPerceivity()))
+                {
+                    time += fragment.getActivity().getTotalActiveTimeMs();
+                    if (criteria.IncludePauseTime) time += fragment.getActivity().getTotalPauseTimeMs();
+                    if (criteria.WordsMeasure)
+                    {
+                        int wordsCount = TimeUtils.WordCounting.CountWords1(textFragmentToString(fragment));
+                        length += wordsCount;
+                    }
+                    else
+                    length += fragment.getLength();
+                }
+
+                totalTime += time;
+                totalLength += length;
+                if (criteria.Accumulating)
+                    points.Add(new Point(TimeUtils.msToS(totalTime), totalLength));
+                else
+                {
+                    if (criteria.Average)
+                    {
+                        double avgValue = time == 0 ? 0 : length/ TimeUtils.msToS(time);
+                        points.Add(new Point(TimeUtils.msToS(totalTime), avgValue));
+                    }
+                    else
+                        points.Add(new Point(TimeUtils.msToS(totalTime), length));
+                }
+            }
+            if (criteria.BaseLine)
+            {
+                List<Point> extraPoints = new List<Point>();
+                double totalTimeMs = TimeUtils.msToS(totalTime);
+                double mediana = totalTimeMs==0 ? 0 : totalLength / TimeUtils.msToS(totalTime);
+                extraPoints.Add(new Point(0,mediana));
+                extraPoints.Add(new Point(TimeUtils.msToS(totalTime), mediana));
+                result["extraPoints"] = extraPoints;
+            }
+            result["points"] = points;
+           
+            return result;
+        }
 
     }
 }

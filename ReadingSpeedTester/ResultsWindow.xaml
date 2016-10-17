@@ -5,18 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ReadingSpeedTester"
         mc:Ignorable="d"
-        Title="ResultsWindow" Height="437.133" Width="400.667">
+        Title="ResultsWindow" Height="573.133" Width="544.667">
     <WrapPanel Orientation="Vertical">
-            <Label x:Name="chartLabel" Content="Графіки:" HorizontalAlignment="Right"/>
-            <WrapPanel Height="86">
-                <Button x:Name="btnAnalyzeCharactersPerSecond" Content="читання" PreviewMouseDown="btnAnalyzeCharactersPerSecond_PreviewMouseDown" Width="112" RenderTransformOrigin="0.435,3.417"/>
-                <Button x:Name="btnAnalyzeCharactersPerSecondWithoutAccumulating" Content="Чит. без накопич" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondWithoutAccumulating_PreviewMouseDown"/>
-            <Button x:Name="btnAnalyzeCharactersPerSecondRegardingZero" Content="Чит. відносно нуля" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondRegardingZero_PreviewMouseDown" Click="btnAnalyzeCharactersPerSecondRegardingZero_Click"/>
-            <Button x:Name="btnAnalyzeCharactersPerSecondActive" Content="акт. читання" Width="163" RenderTransformOrigin="0.435,3.417" PreviewMouseDown="btnAnalyzeCharactersPerSecondActive_PreviewMouseDown"/>
-            <Button x:Name="btnShowReadingStatistic" Content="Статистика читання" Width="75" PreviewMouseDown="btnShowReadingStatistic_PreviewMouseDown"/>
-
+        <WrapPanel >
+            <Button x:Name="btnShowChart" Content="Вивести на графік" PreviewMouseDown="btnShowChart_PreviewMouseDown" Width="221" RenderTransformOrigin="0.435,3.417"/>
+            <Button x:Name="btnShowReadingStatistic" Content="Статистика читання" Width="310" PreviewMouseDown="btnShowReadingStatistic_PreviewMouseDown"/>
+            <Button x:Name="btnSaveStatisticToFile" Content="Зберегти в файл" Width="310" PreviewMouseDown="btnSaveStatisticToFile_PreviewMouseDown"/>
         </WrapPanel>
-            <Label x:Name="StatisticLabel" Content="Статистика:" HorizontalAlignment="Center"/>
+        <WrapPanel Orientation="Vertical">
+            <CheckBox x:Name="cbChartAccumulating" Content="Накопичення"/>
+            <CheckBox x:Name="cbChartIncludeReaded" Content="Прочитано"/>
+            <CheckBox x:Name="cbChartIncludeSkipped" Content="Пропущено"/>
+            <CheckBox x:Name="cbChartWordsMeasure" Content="Слова"/>
+            <CheckBox x:Name="cbChartIncludePauseTime" Content="Паузи"/>
+            <CheckBox x:Name="cbChartBaseLine" Content="Медіана"/>
+            <CheckBox x:Name="cbChartAverage" Content="Середнє"/>
+        </WrapPanel>
+        <Label x:Name="StatisticLabel" Content="Статистика:" HorizontalAlignment="Center"/>
             <DockPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>

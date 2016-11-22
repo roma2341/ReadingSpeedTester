@@ -30,7 +30,7 @@ namespace ReadingSpeedTester
            return text.Length;
        }
 
-       private string textFragmentToString(TextFragment fragment)
+       public string textFragmentToString(TextFragment fragment)
        {
           int start = fragment.getStartIndex();
            int length = fragment.getLength();
@@ -52,6 +52,19 @@ namespace ReadingSpeedTester
                    strBuilder.Append(textFragmentToString(fragment));
            }
            return strBuilder.ToString();
+       }
+
+       public string[] getFragmentsStrings()
+       {
+           string[] result = new string[fragments.Count];
+           int i = 0;
+           foreach (var fragment in fragments)
+           {
+                result[i] = textFragmentToString(fragment);
+                Console.WriteLine("::"+fragment.getStartIndex()+":"+fragment.getLength());
+               i++;
+           }
+           return result;
        }
 
        public string getNonPerceivedText()
@@ -192,6 +205,7 @@ namespace ReadingSpeedTester
         {
             TextFragmentContainer container = new TextFragmentContainer();
             container.text = text;
+           // container.text=container.text.Trim();
             return container;
         }
 

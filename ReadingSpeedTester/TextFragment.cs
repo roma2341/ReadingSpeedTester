@@ -62,7 +62,7 @@ namespace ReadingSpeedTester
 
         public int getLength()
         {
-            return endIndex - startIndex;
+            return endIndex - startIndex+1;
         }
         public static TextFragment beginFragment(int start)
         {

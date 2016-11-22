@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,12 +70,19 @@ namespace ReadingSpeedTester
             return rtb.Selection.Text;
         }
 
+        public static void colorizeTextRange(RichTextBox rtb,TextRange textRange,Color color)
+        {
+            textRange.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(color));
+        }
+
         public static int toCarretPosition(RichTextBox rtb)
         {
             var start = rtb.Document.ContentStart;
             var here = rtb.CaretPosition;
             var range = new TextRange(start, here);
             int indexInText = range.Text.Length;
+            //Console.WriteLine("text left:"+here.GetTextInRun(LogicalDirection.Backward));
+            //Console.WriteLine("text left:" + here.GetTextInRun(LogicalDirection.Forward));
             return indexInText;
             /*rtb.CaptureMouse();          
            TextPointer position = rtb.GetPositionFromPoint(pt, true);
@@ -96,6 +104,20 @@ namespace ReadingSpeedTester
         {
             rtb.Document.Blocks.Clear();
             rtb.Document.Blocks.Add(new Paragraph(new Run(text)));
+        }
+
+        public static string setRichTextBoxRtf(RichTextBox rtb, string rtfValue)
+        {
+            rtb.SelectAll();
+            MemoryStream stream = new MemoryStream(ASCIIEncoding.Default.GetBytes(rtfValue));
+            rtb.Selection.Load(stream, DataFormats.Rtf);
+            TextRange textRange = new TextRange(
+    // TextPointer to the start of content in the RichTextBox.
+    rtb.Document.ContentStart,
+    // TextPointer to the end of content in the RichTextBox.
+    rtb.Document.ContentEnd
+);
+            return textRange.Text;
         }
     }
 }

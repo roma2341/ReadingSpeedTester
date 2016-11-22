@@ -184,6 +184,7 @@ namespace ReadingSpeedTester
             }
 
             textFragmentcontainer = TextFragmentContainer.fromText(TextUtils.textFromRichTextBox(rtbText));
+            rtbText.CaretPosition = rtbText.Document.ContentStart;
         }
  
         private string loadFileContent(String path)
